@@ -1,0 +1,21 @@
+model - example: https://www.youtube.com/watch?v=q6CLdCl9TB0
+
+VG B Part: I created also a neural custom voice for fun, but I couldn't deploy it because of permissions.
+
+<!--ID=B7267351-473F-409D-9765-754A8EBCDE05;Version=1|{"VoiceNameToIdMapItems":[{"Id":"865ed125-9b77-4022-bf44-142ca2522695","Name":"Microsoft Server Speech Text to Speech Voice (en-GB, RyanNeural)","ShortName":"en-GB-RyanNeural","Locale":"en-GB","VoiceType":"StandardVoice"}]}-->
+<!--ID=FCB40C2B-1F9F-4C26-B1A1-CF8E67BE07D1;Version=1|{"Files":{}}-->
+<!--ID=5B95B1CC-2C7B-494F-B746-CF22A0E779B7;Version=1|{"Locales":{"en-GB":{"AutoApplyCustomLexiconFiles":[{}]}}}-->
+<speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="en-GB"><voice name="en-GB-RyanNeural" commasilence-exact="2500ms"></voice>
+<voice name="en-GB-RyanNeural" commasilence-exact="2500ms">        <mstts:express-as style="narration-professional"></mstts:express-as></voice>
+<voice name="en-GB-RyanNeural" commasilence-exact="2500ms"><mstts:express-as style="narration-professional">            </mstts:express-as></voice>
+<voice name="en-GB-RyanNeural" commasilence-exact="2500ms"><mstts:express-as style="narration-professional"><prosody rate="-20%" volume="+50%" pitch="low">                To be, <break time="500ms" /> or not to be, <break time="700ms" /> that is the question. </prosody></mstts:express-as></voice>
+<voice name="en-GB-RyanNeural" commasilence-exact="2500ms"><mstts:express-as style="narration-professional"><prosody rate="-20%" volume="+50%" pitch="low">                <break time="600ms" /></prosody></mstts:express-as></voice>
+<voice name="en-GB-RyanNeural" commasilence-exact="2500ms"><mstts:express-as style="narration-professional"><prosody rate="-20%" volume="+50%" pitch="low">                Whether 'tis nobler in the mind <break time="400ms" /> to suffer </prosody></mstts:express-as></voice>
+<voice name="en-GB-RyanNeural" commasilence-exact="2500ms"><mstts:express-as style="narration-professional"><prosody rate="-20%" volume="+50%" pitch="low">                <prosody pitch="+3%">the slings and arrows</prosody> of outrageous fortune,</prosody></mstts:express-as></voice>
+<voice name="en-GB-RyanNeural" commasilence-exact="2500ms"><mstts:express-as style="narration-professional"><prosody rate="-20%" volume="+50%" pitch="low">                <break time="500ms" /> </prosody></mstts:express-as></voice>
+<voice name="en-GB-RyanNeural" commasilence-exact="2500ms"><mstts:express-as style="narration-professional"><prosody rate="-20%" volume="+50%" pitch="low">                Or to take arms <break time="400ms" /> against a sea of troubles,</prosody></mstts:express-as></voice>
+<voice name="en-GB-RyanNeural" commasilence-exact="2500ms"><mstts:express-as style="narration-professional"><prosody rate="-20%" volume="+50%" pitch="low">                <break time="700ms" /> </prosody></mstts:express-as></voice>
+<voice name="en-GB-RyanNeural" commasilence-exact="2500ms"><mstts:express-as style="narration-professional"><prosody rate="-20%" volume="+50%" pitch="low">                And by opposing... <prosody pitch="-5%">end them?</prosody></prosody></mstts:express-as></voice>
+<voice name="en-GB-RyanNeural" commasilence-exact="2500ms"><mstts:express-as style="narration-professional"><prosody rate="-20%" volume="+50%" pitch="low">            </prosody></mstts:express-as></voice>
+<voice name="en-GB-RyanNeural" commasilence-exact="2500ms"><mstts:express-as style="narration-professional">        </mstts:express-as></voice>
+<voice name="en-GB-RyanNeural" commasilence-exact="2500ms">    </voice></speak>
