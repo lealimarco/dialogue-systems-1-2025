@@ -1873,7 +1873,7 @@ __metadata:
   resolution: "code@workspace:."
   dependencies:
     "@statelyai/inspect": ^0.4.0
-    speechstate: 2.8.0
+    speechstate: 2.8.2
     typescript: ~5.6.2
     vite: ^6.0.5
     xstate: ^5.19.2
@@ -2424,7 +2424,7 @@ __metadata:
 
 "fsevents@patch:fsevents@~2.3.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.3#~builtin<compat/fsevents>":
   version: 2.3.3
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.3#~builtin<compat/fsevents>::version=2.3.3&hash=df0bf1"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.3#~builtin<compat/fsevents>::version=2.3.3&hash=18f3a7"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -3332,7 +3332,7 @@ __metadata:
 
 "resolve@patch:resolve@^1.14.2#~builtin<compat/resolve>":
   version: 1.22.10
-  resolution: "resolve@patch:resolve@npm%3A1.22.10#~builtin<compat/resolve>::version=1.22.10&hash=c3c19d"
+  resolution: "resolve@patch:resolve@npm%3A1.22.10#~builtin<compat/resolve>::version=1.22.10&hash=07638b"
   dependencies:
     is-core-module: ^2.16.0
     path-parse: ^1.0.7
@@ -3580,13 +3580,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"speechstate@npm:2.8.0":
-  version: 2.8.0
-  resolution: "speechstate@npm:2.8.0"
+"speechstate@npm:2.8.2":
+  version: 2.8.2
+  resolution: "speechstate@npm:2.8.2"
   dependencies:
     "@vladmaraev/web-speech-cognitive-services-davi": ^2.0.16
     xstate: ^5.17.4
-  checksum: 8abb1fc28b09fb183cd6d967ac79fc5e4db374d232e7974e475ad2c727dead65a2edf32de7ccf60278f3344b7e20e23c75ee57055dcb6725652f0923c22458a7
+  checksum: 90ffd1908ca9dc4d11957939c5294659539eaba7c2573a9d0390fa67ad4f848f85e516a8f4bcb7e6d2706268dacc31c169cd32e839fd88c1808a65f42ac10fd1
   languageName: node
   linkType: hard
 
@@ -3704,7 +3704,7 @@ __metadata:
 
 "typescript@patch:typescript@~5.6.2#~builtin<compat/typescript>":
   version: 5.6.3
-  resolution: "typescript@patch:typescript@npm%3A5.6.3#~builtin<compat/typescript>::version=5.6.3&hash=29ae49"
+  resolution: "typescript@patch:typescript@npm%3A5.6.3#~builtin<compat/typescript>::version=5.6.3&hash=701156"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
