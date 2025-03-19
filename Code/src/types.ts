@@ -8,10 +8,15 @@ export interface DMContext {
   person: Hypothesis[] | null;
   day: Hypothesis[] | null;
   wholeDay: Hypothesis[] | null;
+  confirmation: Hypothesis[] | null;
+  negation: Hypothesis[] | null;
   time: Hypothesis[] | null;
-  response: Hypothesis[] | null;
-  
+  phrase: Hypothesis[] | null;
+  interpretation: Hypothesis[] | null;
+  yes: Hypothesis[] | null;
+  no: Hypothesis[] | null;
 
+  
 }
 
 export type DMEvents = SpeechStateExternalEvent | { type: "CLICK" };
