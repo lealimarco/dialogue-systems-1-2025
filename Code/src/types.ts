@@ -3,15 +3,19 @@ import { AnyActorRef } from "xstate";
 
 export interface DMContext {
   spstRef: AnyActorRef;
-  lastResult: Hypothesis[] | null;
 
   person: Hypothesis[] | null;
-  day: Hypothesis[] | null;
-  wholeDay: Hypothesis[] | null;
   time: Hypothesis[] | null;
-  response: Hypothesis[] | null;
-  
+  space: Hypothesis[] | null;
+  answer: Hypothesis[] | null;
+  reply: Hypothesis[] | null;
+  archetype: Hypothesis[] | null;
+  message: Hypothesis[] | null;
+  interpretation: Hypothesis[] | null;
 
+  // name: Hypothesis[] | null;
+  // telephone: Hypothesis[] | null;
+  
 }
 
 export type DMEvents = SpeechStateExternalEvent | { type: "CLICK" };

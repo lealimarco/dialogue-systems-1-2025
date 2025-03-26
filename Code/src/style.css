@@ -28,6 +28,10 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+
+  background: url('/Users/lealimarco/Desktop/2nd semester/LT2216 Dialogue Systems/labs/project/dialogue-systems-1-2025/Code/public/intro.gif') no-repeat center center fixed;
+  background-size: cover;
+
 }
 
 h1 {
@@ -63,7 +67,7 @@ h1 {
   color: #888;
 }
 
-button {
+/* button {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -73,7 +77,35 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+} */
+
+/* Modify button styles */
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #000000; /* Deep blue background */
+  color: rgb(242, 235, 53); /* Yellow text */
+  cursor: pointer;
+  transition: border-color 0.25s;
+  
+  /* Position button at the top */
+  position: absolute; /* Position it absolutely */
+  top: 52.5%; /* Set the distance from the top of the screen */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Adjust for perfect horizontal centering */
+
+  /* Add text border (outline effect) */
+  text-shadow: 
+    1px 1px 0 #000,   /* Horizontal shadow */
+    -1px -1px 0 #000, /* Horizontal shadow */
+    1px -1px 0 #000,  /* Vertical shadow */
+    -1px 1px 0 #000;  /* Vertical shadow */
 }
+
 button:hover {
   border-color: #646cff;
 }
@@ -91,6 +123,52 @@ button:focus-visible {
     color: #747bff;
   }
   button {
-    background-color: #f9f9f9;
+    background-color: transparent;
+    
   }
+
+
+  #go-back-btn {
+    border-radius: 8px;
+    border: 1px solid transparent;
+    padding: 0.6em 1.2em;
+    font-size: 0.8em;
+    font-weight: 500;
+    font-family: inherit;
+    background-color: transparent; /* Transparent background */
+    color: rgb(242, 235, 53); /* Yellow text */
+    cursor: pointer;
+    transition: border-color 0.25s;
+  
+    /* Position button at the bottom-right */
+    position: fixed; /* Ensures it stays fixed at bottom-right */
+    top: 89%; /* Distance from bottom */
+    left: 89%; /* Distance from right */
+  
+    /* Add text border (outline effect) */
+    text-shadow: 
+      1px 1px 0 #000,   
+      -1px -1px 0 #000, 
+      1px -1px 0 #000,  
+      -1px 1px 0 #000;  
+  }
+  
+  /* Hover effect */
+  #go-back-btn:hover {
+    border-color: #646cff;
+  }
+  
+  /* Focus (Selection) Fix */
+  #go-back-btn:focus,
+  #go-back-btn:focus-visible {
+    outline: none; /* Removes big square when selected */
+    border: 1px solid #646cff; /* Subtle focus effect */
+  }
+  
+  @media (prefers-color-scheme: light) {
+    #go-back-btn {
+      background-color: transparent;
+    }
+  }
+
 }

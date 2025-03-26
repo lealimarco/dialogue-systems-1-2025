@@ -11,10 +11,9 @@ const inspector = createBrowserInspector();
 
 const azureCredentials = {
   endpoint:
-    // "https://northeurope.api.cognitive.microsoft.com/sts/v1.0/issuetoken", OLD STUDENT ACCOUNT EUROPE
-    "https://northeurope.api.cognitive.microsoft.com/sts/v1.0/issuetoken", // PERSONAL ACCOUNT EUROPE
-    // "https://swedencentral.api.cognitive.microsoft.com/sts/v1.0/issuetoken", // VLAD SWEDEN
-
+    // "https://northeurope.api.cognitive.microsoft.com/sts/v1.0/issuetoken", OLD STUDENT ACCOUNT
+    // "https://northeurope.api.cognitive.microsoft.com/",
+    "https://northeurope.api.cognitive.microsoft.com/sts/v1.0/issuetoken",
   key: KEY,
 };
 
@@ -34,14 +33,12 @@ const settings: Settings = {
   azureLanguageCredentials: azureLanguageCredentials /** global activation of NLU */,
 
   azureCredentials: azureCredentials,
-  azureRegion: "northeurope", 
-  // azureRegion: "swedencentral",
+  azureRegion: "northeurope",
   asrDefaultCompleteTimeout: 0,
   asrDefaultNoInputTimeout: 5000,
   locale: "en-US",
 
   // lab2
-  // ttsDefaultVoice: "sv-SE-SofieNeural",
   ttsDefaultVoice: "en-US-AvaMultilingualNeural", // previously was "en-US-DavisNeural"
   //en-US-AvaMultilingualNeural copied from SSML https://speech.microsoft.com/portal/8032a881d1714f93a1097e4d35d8b4a6/audiocontentcreation/folder/602a3e1e-7257-4721-8111-009550c308f6/file/aff29c34-c355-429d-9b7e-3b8bb07db2af
   
@@ -49,8 +46,8 @@ const settings: Settings = {
   // speechRecognitionEndpointId: "c9cf0d8b-777e-479e-afdd-9d399383fe53", // dreamons | lab3
   //speechRecognitionEndpointId: "70c24a75-8171-461b-98d1-bb26b9fc8fff", // dreamons_time_traveler | project OLD STUDENT ACCOUNT
   
-  // REMOVED JUST FOR THE PRESENTATION
-  //speechRecognitionEndpointId: "4db5d244-539f-4b7b-a049-c4057de3c804", // dreamons_time_traveler | project
+  // deatctivated
+  // speechRecognitionEndpointId: "4db5d244-539f-4b7b-a049-c4057de3c804", // dreamons_time_traveler | project
   
 };
 
@@ -128,7 +125,6 @@ const grammar: { [index: string]: GrammarEntry } = {
   "manzino": { person: "Menzi Idol. You know, billy, i think i should change my life." },
   "the menzi idol": { person: "Menzi Idol. To save yourself, you must die." }, //fixed adding a comma
   "manzi": { person: "Menzi Idol. But so, you are a bastard." }, // it doesn't work because it is censored *******
-  "menzie": { person: "Menzi Idol. But so, you are a bastard." }, 
 
 
   // 2. The Soul Types (Focus: Freedom & Identity)
@@ -243,6 +239,7 @@ const grammar: { [index: string]: GrammarEntry } = {
   "sage": { answer: "Sage" }, 
   //"magician": { answer: "Magician" }, 
   "ruler": { answer: "Ruler" }, 
+
 
 // Q1: What drives you the most in life?
 "discovery": { answer: "Innocent" },
@@ -409,7 +406,6 @@ const grammar: { [index: string]: GrammarEntry } = {
 "telekinesis": { answer: "Magician" },
 "perfect memory": { answer: "Sage" },
 "endless energy": { answer: "Hero" },
-
 
 // Q1: Which object would you take with you for a trip around the world?
 "map": { answer: "Explorer" },
@@ -844,8 +840,7 @@ const dmMachine = setup({
         type: "SPEAK",
         value: {
           utterance: params.utterance,
-          voice: "en-US-DavisNeural", //"fr-FR-HenriNeural",
-
+          voice: "fr-FR-HenriNeural"
         },
       });
     },
@@ -959,6 +954,7 @@ const dmMachine = setup({
                 target: "CheckGrammarPerson",
                 guard: ({ context }) => !!context.person,
               },
+              { target: ".NoInput" },
  
               {
                 target: "Greeting",
@@ -972,7 +968,6 @@ const dmMachine = setup({
                   return isHelpUtterance || isHelpIntent;
                 },
               },
-              { target: ".NoInput" },
             ],
           },
 
@@ -1001,14 +996,8 @@ const dmMachine = setup({
                 ASR_NOINPUT: {
                   actions: assign({ person: null }), /* FIX_NO_INPUT*/
                 },
-
-
-                
                 ASR_STOP: {
-                  actions: ({ context }) => {
-                    console.log("⚠️ ASR STOP received - possibly prematurely.");
-
-                  },
+                  actions: () => console.log("⚠️ ASR STOP received - possibly prematurely."),
                 },
               },
             },
@@ -1290,6 +1279,9 @@ const dmMachine = setup({
           },
         },
 
+        
+
+
 
         /* TIME */
         AskForWhen: {
@@ -1439,11 +1431,7 @@ const dmMachine = setup({
                 target: "CheckGrammarWhen",
                 guard: ({ context }) => !!context.time,
               },
-              { target: ".NoInput" },
-              // {
-              //   target: "Greeting",
-              //   guard: ({ context }) => context.person?.[0]?.utterance?.toLowerCase() === "help",
-              // },
+ 
               {
                 target: "Greeting",
                 guard: ({ context }) => {
@@ -1456,6 +1444,8 @@ const dmMachine = setup({
                   return isHelpUtterance || isHelpIntent;
                 },
               },
+
+              { target: ".NoInput" },
             ],
           },
 
@@ -1486,13 +1476,8 @@ const dmMachine = setup({
                 ASR_NOINPUT: {
                     actions: assign({ time: null }),
                 },
-                 ASR_STOP: {
-                  actions: ({ context }) => {
-                    console.log("⚠️ ASR STOP received - possibly prematurely.");
-                    
-                    // // Restart listening to avoid unwanted stop
-                    context.spstRef.send({ type: "LISTEN", value: { nlu: true } });  // * bug fix
-                  },
+                ASR_STOP: {
+                  actions: () => console.log("⚠️ ASR STOP received - possibly prematurely."),
                 },
               },
             },
@@ -1570,14 +1555,8 @@ const dmMachine = setup({
               const topIntent = context.interpretation?.topIntent;
               console.log(`😎 topIntent: ${topIntent}`);
 
-              
-              // ✅ Define intents before using it
-              const intents = context.interpretation?.intents || [];  
-      
-              // ✅ Filter out invalid intents (null, undefined, or without confidenceScore)
-              const validIntents = intents.filter(intent => intent && intent.confidenceScore != null);
-  
-             
+
+            
 
               // ⏱️ Check time
               const checkTimeIntent = (category) => {
@@ -1590,31 +1569,13 @@ const dmMachine = setup({
                 console.log(`⏱️ Is this a ${time} selection? ${isTime ? "Yes" : "No,"} with confidence score: ${context.interpretation?.intents?.find(intent => intent.category === time)?.confidenceScore || "N/A"}`);
               });
 
-              // Find the intent with the highest confidence **within the valid time** 
-              /* NEW FUNCTION TO IMPROVE THE UNDERSTADING! So, even if the topIntent is e.g. ReplyYes -> you can chose to check the highestIntent */
-              const filteredIntents = validIntents.filter(intent => validTime.includes(intent.category));
 
-              const highestIntent = filteredIntents.length > 0 
-                ? filteredIntents.reduce((prev, current) => 
-                    (prev.confidenceScore > current.confidenceScore ? prev : current), filteredIntents[0]) // ✅ Use first valid intent
-                : null;
-                
-              // Check if topIntent has a confidence score above 0.80
-              const isTopIntent = topIntent && topIntent.confidenceScore > 0.80;
-
-              // Check if highestIntent exists and its confidence score is above 0.80
-              const isHighestIntent = highestIntent && highestIntent.confidenceScore > 0.80;
-
-              // Check if highestIntent exists and its confidence score is above 0.70
-              const isGuessHighestIntent = highestIntent && highestIntent.confidenceScore > 0.70;
-
-
-    
+              
             
             },
         
         
-      
+        
         
         
             {
@@ -1624,47 +1585,20 @@ const dmMachine = setup({
                 const spokenTime = context.time?.[0]?.utterance || "unknown";
                 const fullTime = grammar[spokenTime]?.time || spokenTime; // Look up full time in grammar
 
-          
-
+           
+     
               // NEW VERSION | lab5
-              // ✅ Define intents before using it
-              const intents = context.interpretation?.intents || [];  
 
-              // ✅ Filter out invalid intents (null, undefined, or without confidenceScore)
-              const validIntents = intents.filter(intent => intent && intent.confidenceScore != null);
-
-              // ✅ Check if validIntents is not empty before reducing
-              const topIntent = validIntents.length > 0 
-                  ? validIntents.reduce((prev, current) => 
-                      (prev.confidenceScore > current.confidenceScore ? prev : current), validIntents[0]) // ✅ Use first intent as default
-                  : null; // ✅ Return `null` if no valid intents exist
-
-              console.log("Top Intent:", topIntent);
-
-              // Define the valid spaces
-              const validTime = ["GoToPast", "GoToPresent", "GoToFuture"];
-              
-              // Find the intent with the highest confidence **within the valid time** 
-              /* NEW FUNCTION TO IMPROVE THE UNDERSTADING! So, even if the topIntent is e.g. ReplyYes -> you can chose to check the highestIntent */
-              const filteredIntents = validIntents.filter(intent => validTime.includes(intent.category));
-
-              const highestIntent = filteredIntents.length > 0 
-                ? filteredIntents.reduce((prev, current) => 
-                    (prev.confidenceScore > current.confidenceScore ? prev : current), filteredIntents[0]) // ✅ Use first valid intent
-                : null;
-
-              // Check if topIntent has a confidence score above 0.80
-              const isTopIntent = topIntent && topIntent.confidenceScore > 0.80;
-
-              // Check if highestIntent exists and its confidence score is above 0.80
-              const isHighestIntent = highestIntent && highestIntent.confidenceScore > 0.80;
-
-              // Check if highestIntent exists and its confidence score is above 0.70
-              const isGuessHighestIntent = highestIntent && highestIntent.confidenceScore > 0.70;
-
-              // Log the details
-              console.log(`🚀 Top Intent: ${topIntent?.category || "N/A"} with confidence score: ${isTopIntent ? topIntent.confidenceScore : "N/A"}`);
-              console.log(`🎯 Highest Valid Intent: ${highestIntent?.category || "N/A"} with confidence score: ${highestIntent?.confidenceScore || "N/A"}`);
+                // Extract the intents array from context
+                const intents = context.interpretation?.intents;
+                // Find the top intent with the highest confidence score
+                const topIntent = intents?.reduce((prev, current) => (prev.confidenceScore > current.confidenceScore ? prev : current), {});
+                // Define the valid times
+                const validTime = ["GoToPast", "GoToPresent", "GoToFuture"];
+                // Check if topIntent exists and has a confidence score above 0.80 and the category matches one of the valid times
+                const isTopIntent = topIntent && topIntent.confidenceScore > 0.80 && validTime.includes(topIntent.category);
+                // Log the details
+                console.log(`🚀 topIntent: ${topIntent ? topIntent.category : "N/A"} with confidence score: ${isTopIntent ? topIntent.confidenceScore : "N/A"}`);
 
 
                 // Mapping between time intents and archetypes
@@ -1680,12 +1614,12 @@ const dmMachine = setup({
                 if (isInGrammar(spokenTime)) {
 
                   // 🔮 Log the previous archetype score for the top intent
-                  console.log(`🔮 Previous ${highestIntent.category} Archetype Score: ${archetypeScores[`${highestIntent.category}ArchetypeScore`]}`);
+                  console.log(`🔮 Previous ${topIntent.category} Archetype Score: ${archetypeScores[`${topIntent.category}ArchetypeScore`]}`);
 
                   // Check if the topIntent is a time intent (GoToPast, GoToPresent, GoToFuture)
-                  if (validTime.includes(highestIntent.category)) {
+                  if (validTime.includes(topIntent.category)) {
                     // Get the corresponding archetypes from the mapping
-                    const archetypesToUpdate = timeToArchetypes[highestIntent.category];
+                    const archetypesToUpdate = timeToArchetypes[topIntent.category];
 
                     // Update the archetype scores for each associated archetype
                     archetypesToUpdate.forEach(archetype => {
@@ -1703,20 +1637,19 @@ const dmMachine = setup({
                   return {
                     utterance: `Get ready to travel through the ${getTime(spokenTime)}.`,
                   };
-                }
+}
                 
-    
-                // 🚀 Logic when topIntent is NOT "Help" and highestIntent has higher confidence
-                else if (topIntent.category !== "Help" && isHighestIntent) {
-                  context.space = highestIntent.category.toLowerCase();
+                // 🚀 Logic when topIntent has high confidence
+                else if (isTopIntent) {
+                  context.time = topIntent.category.toLowerCase();
 
-                  // 🔮 Log the previous archetype score for the highest intent
-                  console.log(`🔮 Previous ${highestIntent.category} Archetype Score: ${archetypeScores[`${highestIntent.category}ArchetypeScore`]}`);
+                  // 🔮 Log the previous archetype score for the top intent
+                  console.log(`🔮 Previous ${topIntent.category} Archetype Score: ${archetypeScores[`${topIntent.category}ArchetypeScore`]}`);
 
-                  // 🔮 Check if the category exists in timeToArchetypes
-                  if (timeToArchetypes.hasOwnProperty(highestIntent.category)) {
+                  // 🔮 Check if we need to update the archetype scores for all or just the associated archetypes
+                  if (topIntent.category === "GoToPast" || topIntent.category === "GoToPresent" || topIntent.category === "GoToFuture") {
                     // Get the corresponding archetypes from the mapping
-                    const archetypesToUpdate = timeToArchetypes[highestIntent.category];
+                    const archetypesToUpdate = timeToArchetypes[topIntent.category];
 
                     // If updating all associated archetypes
                     archetypesToUpdate.forEach(archetype => {
@@ -1729,29 +1662,23 @@ const dmMachine = setup({
                       return `${archetype}: ${archetypeScores[`${archetype}ArchetypeScore`]}`;
                     }).join(", ");
                     console.log(`🔮 Updated archetype scores for: ${updatedScores}`);
+
                   }
 
                   return {
-                    nextState: "AskForWhere",
+                    nextState: "AskForWhere", // Transition to "AskForWhere" state
                     utterance: `${getTime(context.time)}. Get ready to travel through the ${getTime(context.time)}`
                   };
                 }
 
             
 
-                // 🔙 Go back case!
-                else if (
-                  (typeof context.time?.[0]?.utterance === "string" && context.time[0].utterance.toLowerCase() === "help") || 
-                  topIntent.category === "Help"
-                ) {
-                  // Handle the "Help" case
-                  console.log("🔙 Going back: Help was requested.");
+                // 🔙 go back case!
+                else if (context.time?.[0]?.utterance?.toLowerCase() === "help") {
 
-
-                  // N.B. If the user goes back at this step, it will lose the acquired poitns got also from the selection of the character
                   resetArchetypeScores();  // Call the reset function to reset all scores
-                  console.log(`🔮 Previous ${highestIntent.category} Archetype Score: ${archetypeScores[`${highestIntent.category}ArchetypeScore`]}`);
-                  console.log(`🔮 Updated ${highestIntent.category} Archetype Score: ${archetypeScores[`${highestIntent.category}ArchetypeScore`]}`);
+                  console.log(`🔮 Previous ${topIntent.category} Archetype Score: ${archetypeScores[`${topIntent.category}ArchetypeScore`]}`);
+                  console.log(`🔮 Updated ${topIntent.category} Archetype Score: ${archetypeScores[`${topIntent.category}ArchetypeScore`]}`);
                   
                   return {
                     utterance: "Let's go back!",
@@ -1762,10 +1689,10 @@ const dmMachine = setup({
 
 
                 // 🔮 guess case
-                else if (isGuessHighestIntent) {
+                else if (isTopIntent && topIntent.confidenceScore > 0.70) {
                   return {
                     nextState: "AskForWhen",
-                    utterance: `Did you mean ${highestIntent.category}? If yes, repeat the name of the place.`,
+                    utterance: `Did you mean ${topIntent.category}? If yes, repeat the time period.`,
                   };
                 }
 
@@ -1773,12 +1700,10 @@ const dmMachine = setup({
                 else {
                   
                   return {
-                    utterance: "I don't know that place.",
+                    utterance: "I don't know that time.",
                     nextState: "AskForWhen",
                   };
                 }
-
-
 
 
 
@@ -1795,16 +1720,10 @@ const dmMachine = setup({
 
 
               {
-                // If the user says "help" (spoken time or topIntent), move to "AskForWho"
+                // If the user says "help", move to "AskForWho"
                 guard: ({ context }) => {
                   const spokenTime = context.time?.[0]?.utterance;
-                  const topIntent = context.interpretation?.intents?.reduce((prev, current) => 
-                    (prev.confidenceScore > current.confidenceScore ? prev : current), {});
-              
-                  return (
-                    (typeof spokenTime === "string" && spokenTime.toLowerCase() === "help") ||
-                    (topIntent?.category === "Help")
-                  );
+                  return typeof spokenTime === "string" && spokenTime.toLowerCase() === "help";
                 },
                 target: "AskForWho",
               },
@@ -1819,24 +1738,18 @@ const dmMachine = setup({
               },
 
               {
-                // highestIntent approach
+                //topIntent approach
                 guard: ({ context }) => {
                   // Extract the intents array from context
-                  const intents = context.interpretation?.intents || [];
-              
+                  const intents = context.interpretation?.intents;
+                  // Find the top intent with the highest confidence score
+                  const topIntent = intents?.reduce((prev, current) => (prev.confidenceScore > current.confidenceScore ? prev : current), {});
                   // Define the valid times
                   const validTime = ["GoToPast", "GoToPresent", "GoToFuture"];
-              
-                  // Find the intent with the highest confidence within the valid times
-                  const highestIntent = intents
-                    .filter(intent => validTime.includes(intent.category))
-                    .reduce((prev, current) => 
-                      (prev.confidenceScore > current.confidenceScore ? prev : current), null);
-              
-                  // Check if highestIntent exists and has a confidence score above 0.80
-                  const isHighestIntent = highestIntent && highestIntent.confidenceScore > 0.80;
-              
-                  return isHighestIntent; // Transition to AskForWhere if highestIntent has sufficient confidence
+                  // Check if topIntent exists and has a confidence score above 0.80 and the category matches one of the valid times
+                  const isTopIntent = topIntent && topIntent.confidenceScore > 0.80 && validTime.includes(topIntent.category);
+
+                  return isTopIntent; // Transition to AskForWhere if topIntent has suffcient confidence
                 },
                 target: "AskForWhere", // Transition to AskForWhere state
               },
@@ -1984,97 +1897,32 @@ const dmMachine = setup({
    
             ({ context }) => {
 
-              // // Extract space entitity from recognized context if it exists
-              // const spacentity = context.interpretation?.entities.find(entity => entity.category === "space");
-              // console.log(`🌍 Space Entity: ${spacentity?.text || "undefined"}`);
-
-              // const spokenSpace = context.space?.[0]?.utterance || "unknown"; // ✅ Safe access
-              // const inGrammar = isInGrammar(spokenSpace);
-              // console.log(`🔍 You just said: ${spokenSpace}`);
-
-
-              // // Extract top intent | lab4
-              // const topIntent = context.interpretation?.topIntent;
-              // console.log(`😎 topIntent: ${topIntent}`);
-
-
-            
-
-              // // 🌍 Check space
-              // const checkSpaceIntent = (category) => {
-              //   const spaceIntent = context.interpretation?.intents?.find(intent => intent.category === category);
-              //   return spaceIntent && spaceIntent.confidenceScore > 0.80;
-              // };
-              // const validSpace = ["GoToHelsinki", "GoToAtlanticCity", "GoToMorocco", "GoToFlorence", "GoToSantaMonica", "GoToParis", "GoToGothenburg", "GoToLake", "GoToSavona", "GoToVarazze", "GoToTurin", "GoToMorbegno" ];
-              // validSpace.forEach(space => {
-              //   const isSpace = checkSpaceIntent(space);
-              //   console.log(`🌍 Is this a ${space} selection? ${isSpace ? "Yes" : "No,"} with confidence score: ${context.interpretation?.intents?.find(intent => intent.category === space)?.confidenceScore || "N/A"}`);
-              // });
-
-              // // Find the intent with the highest confidence **within the valid spaces** 
-              // /* NEW FUNCTION TO IMPROVE THE UNDERSTADING! So, even if the topIntent is e.g. ReplyYes -> you can chose to check the highestIntent */
-              // const highestIntent = intents
-              //     .filter(intent => validSpace.includes(intent.category))
-              //     .reduce((prev, current) => 
-              //         (prev.confidenceScore > current.confidenceScore ? prev : current), null);
-
-              // // Check if topIntent has a confidence score above 0.80
-              // const isTopIntent = topIntent && topIntent.confidenceScore > 0.80;
-
-              // // Check if highestIntent exists and its confidence score is above 0.80
-              // const isHighestIntent = highestIntent && highestIntent.confidenceScore > 0.80;
-
-              // // Check if highestIntent exists and its confidence score is above 0.70
-              // const isGuessHighestIntent = highestIntent && highestIntent.confidenceScore > 0.70;
-
-
-              // Extract space entity from recognized context if it exists
-              const spaceEntity = context.interpretation?.entities.find(entity => entity.category === "space");
-              console.log(`🚀 Space Entity: ${spaceEntity?.text || "undefined"}`);
+              // Extract space entitity from recognized context if it exists
+              const spacentity = context.interpretation?.entities.find(entity => entity.category === "space");
+              console.log(`🌍 Space Entity: ${spacentity?.text || "undefined"}`);
 
               const spokenSpace = context.space?.[0]?.utterance || "unknown"; // ✅ Safe access
               const inGrammar = isInGrammar(spokenSpace);
               console.log(`🔍 You just said: ${spokenSpace}`);
 
+
               // Extract top intent | lab4
               const topIntent = context.interpretation?.topIntent;
               console.log(`😎 topIntent: ${topIntent}`);
 
-              // ✅ Define intents before using it
-              const intents = context.interpretation?.intents || [];  
 
-              // ✅ Filter out invalid intents (null, undefined, or without confidenceScore)
-              const validIntents = intents.filter(intent => intent && intent.confidenceScore != null);
+            
 
-              // 🚀 Check space
+              // 🌍 Check space
               const checkSpaceIntent = (category) => {
                 const spaceIntent = context.interpretation?.intents?.find(intent => intent.category === category);
                 return spaceIntent && spaceIntent.confidenceScore > 0.80;
               };
-
-              const validSpace = ["GoToMars", "GoToMoon", "GoToStars"]; // Adjust as needed
+              const validSpace = ["GoToHelsinki", "GoToAtlanticCity", "GoToMorocco", "GoToFlorence", "GoToSantaMonica", "GoToParis", "GoToGothenburg", "GoToLake", "GoToSavona", "GoToVarazze", "GoToTurin", "GoToMorbegno" ];
               validSpace.forEach(space => {
                 const isSpace = checkSpaceIntent(space);
-                console.log(`🚀 Is this a ${space} selection? ${isSpace ? "Yes" : "No,"} with confidence score: ${context.interpretation?.intents?.find(intent => intent.category === space)?.confidenceScore || "N/A"}`);
+                console.log(`🌍 Is this a ${space} selection? ${isSpace ? "Yes" : "No,"} with confidence score: ${context.interpretation?.intents?.find(intent => intent.category === space)?.confidenceScore || "N/A"}`);
               });
-
-              // Find the intent with the highest confidence **within the valid space** 
-              /* NEW FUNCTION TO IMPROVE UNDERSTANDING! So, even if the topIntent is e.g. ReplyYes -> you can choose to check the highestIntent */
-              const filteredIntents = validIntents.filter(intent => validSpace.includes(intent.category));
-
-              const highestIntent = filteredIntents.length > 0 
-                ? filteredIntents.reduce((prev, current) => 
-                    (prev.confidenceScore > current.confidenceScore ? prev : current), filteredIntents[0]) // ✅ Use first valid intent
-                : null;
-                
-              // Check if topIntent has a confidence score above 0.80
-              const isTopIntent = topIntent && topIntent.confidenceScore > 0.80;
-
-              // Check if highestIntent exists and its confidence score is above 0.80
-              const isHighestIntent = highestIntent && highestIntent.confidenceScore > 0.80;
-
-              // Check if highestIntent exists and its confidence score is above 0.70
-              const isGuessHighestIntent = highestIntent && highestIntent.confidenceScore > 0.70;
 
 
               
@@ -2095,75 +1943,47 @@ const dmMachine = setup({
            
      
               // NEW VERSION | lab5
-              // ✅ Define intents before using them
-              const intents = context.interpretation?.intents || [];  
 
-              // ✅ Filter out invalid intents (null, undefined, or without confidenceScore)
-              const validIntents = intents.filter(intent => intent && intent.confidenceScore != null);
+                // Extract the intents array from context
+                const intents = context.interpretation?.intents;
+                // Find the top intent with the highest confidence score
+                const topIntent = intents?.reduce((prev, current) => (prev.confidenceScore > current.confidenceScore ? prev : current), {});
+                // Define the valid spaces
+                const validSpace = ["GoToHelsinki", "GoToAtlanticCity", "GoToMorocco", "GoToFlorence", "GoToSantaMonica", "GoToParis", "GoToGothenburg", "GoToLake", "GoToSavona", "GoToVarazze", "GoToTurin", "GoToMorbegno" ];
+                // Check if topIntent exists and has a confidence score above 0.80 and the category matches one of the valid spaces
+                const isTopIntent = topIntent && topIntent.confidenceScore > 0.80 && validSpace.includes(topIntent.category);
+                // Log the details
+                console.log(`🚀 topIntent: ${topIntent ? topIntent.category : "N/A"} with confidence score: ${isTopIntent ? topIntent.confidenceScore : "N/A"}`);
 
-              // ✅ Check if validIntents is not empty before reducing
-              const topIntent = validIntents.length > 0 
-                  ? validIntents.reduce((prev, current) => 
-                      (prev.confidenceScore > current.confidenceScore ? prev : current), validIntents[0]) // ✅ Use first intent as default
-                  : null; // ✅ Return `null` if no valid intents exist
 
-              console.log("Top Intent:", topIntent);
+                // Mapping between time intents and archetypes
+                const spaceToArchetypes = {
+                  "GoToHelsinki": ["Billy", "French"],
+                  "GoToAtlanticCity": ["Player", "Devil"],
+                  "GoToMorocco": ["Voyager", "Empress"],
+                  "GoToFlorence": ["Billy", "Menzi", "Hierophant", "Zack", "Kid", "Artist", "Master"],
+                  "GoToSantaMonica": ["Devil", "Player"],
+                  "GoToParis": ["Hierophant", "French"],
+                  "GoToGothenburg": ["Artist", "Billy"],
+                  "GoToLake": ["Empress", "Voyager"],
+                  "GoToSavona": ["Menzi", "Zack", "Kid"],
+                  "GoToVarazze": ["Hierophant", "Master"],
+                  "GoToTurin": ["Zack", "Kid"],
+                  "GoToMorbegno": ["Billy", "Voyager", "Devil", "Hierophant", "Menzi", "Zack", "Kid"],
+                };
 
-              // Define the valid spaces
-              const validSpace = ["GoToMars", "GoToMoon", "GoToStars"]; // Adjust categories as needed
-
-              // Find the intent with the highest confidence **within the valid space** 
-              /* NEW FUNCTION TO IMPROVE UNDERSTANDING! So, even if the topIntent is e.g. ReplyYes -> you can choose to check the highestIntent */
-              const filteredIntents = validIntents.filter(intent => validSpace.includes(intent.category));
-
-              const highestIntent = filteredIntents.length > 0 
-                ? filteredIntents.reduce((prev, current) => 
-                    (prev.confidenceScore > current.confidenceScore ? prev : current), filteredIntents[0]) // ✅ Use first valid intent
-                : null;
-
-              // Check if topIntent has a confidence score above 0.80
-              const isTopIntent = topIntent && topIntent.confidenceScore > 0.80;
-
-              // Check if highestIntent exists and its confidence score is above 0.80
-              const isHighestIntent = highestIntent && highestIntent.confidenceScore > 0.80;
-
-              // Check if highestIntent exists and its confidence score is above 0.70
-              const isGuessHighestIntent = highestIntent && highestIntent.confidenceScore > 0.70;
-
-              // Log the details
-              console.log(`🚀 Top Intent: ${topIntent?.category || "N/A"} with confidence score: ${isTopIntent ? topIntent.confidenceScore : "N/A"}`);
-              console.log(`🎯 Highest Valid Intent: ${highestIntent?.category || "N/A"} with confidence score: ${highestIntent?.confidenceScore || "N/A"}`);
        
 
-              // Mapping between time intents and archetypes
-              const spaceToArchetypes = {
-                "GoToSavona": ["Zack", "Kid"],
-                "GoToVarazze": ["Hierophant", "Menzi"],
-                "GoToHelsinki": ["Billy", "Artist"],
-                "GoToMorbegno": ["Menzi", "Billy"],
-                "GoToMorocco": ["Voyager", "Master"],
-                "GoToSantaMonica": ["Artist", "Devil"],
-                "GoToFlorence": ["Master", "Player"],
-                "GoToGothenburg": ["French", "Empress"],
-                "GoToParis": ["French", "Hierophant"],
-                "GoToLakeComo": ["Empress", "Voyager"],
-                "GoToTurin": ["Zack", "Kid"],
-                "GoToAtlanticCity": ["Devil", "Devil"],
-            
-              };
-
-        
-
-                // 😊 The user says exactly the time that is stored in the grammar if it is not it goes to the topIntent case before going to the out-of-grammar case
+                // 😊 The user says exactly the space that is stored in the grammar if it is not it goes to the topIntent case before going to the out-of-grammar case
                 if (isInGrammar(spokenSpace)) {
 
                   // 🔮 Log the previous archetype score for the top intent
-                  console.log(`🔮 Previous ${highestIntent.category} Archetype Score: ${archetypeScores[`${highestIntent.category}ArchetypeScore`]}`);
+                  console.log(`🔮 Previous ${topIntent.category} Archetype Score: ${archetypeScores[`${topIntent.category}ArchetypeScore`]}`);
 
                   // Check if the topIntent is a time intent (GoToPast, GoToPresent, GoToFuture)
-                  if (validSpace.includes(highestIntent.category)) {
+                  if (validSpace.includes(topIntent.category)) {
                     // Get the corresponding archetypes from the mapping
-                    const archetypesToUpdate = spaceToArchetypes[highestIntent.category];
+                    const archetypesToUpdate = spaceToArchetypes[topIntent.category];
 
                     // Update the archetype scores for each associated archetype
                     archetypesToUpdate.forEach(archetype => {
@@ -2179,21 +1999,21 @@ const dmMachine = setup({
                   }
 
                   return {
-                    utterance: `Let's go to ${getSpace(spokenSpace)}`,
+                    utterance: `Let's go to ${getSpace(spokenSpace)}.`,
                   };
-                }
+}
                 
-                // 🚀 Logic when topIntent is NOT "Help" and highestIntent has higher confidence
-                else if (topIntent.category !== "Help" && isHighestIntent) {
-                  context.space = highestIntent.category.toLowerCase();
+                // 🚀 Logic when topIntent has high confidence
+                else if (isTopIntent) {
+                  context.space = topIntent.category.toLowerCase();
 
-                  // 🔮 Log the previous archetype score for the highest intent
-                  console.log(`🔮 Previous ${highestIntent.category} Archetype Score: ${archetypeScores[`${highestIntent.category}ArchetypeScore`]}`);
+                  // 🔮 Log the previous archetype score for the top intent
+                  console.log(`🔮 Previous ${topIntent.category} Archetype Score: ${archetypeScores[`${topIntent.category}ArchetypeScore`]}`);
 
                   // 🔮 Check if the category exists in spaceToArchetypes
-                  if (spaceToArchetypes.hasOwnProperty(highestIntent.category)) {
+                  if (spaceToArchetypes.hasOwnProperty(topIntent.category)) {
                     // Get the corresponding archetypes from the mapping
-                    const archetypesToUpdate = spaceToArchetypes[highestIntent.category];
+                    const archetypesToUpdate = spaceToArchetypes[topIntent.category];
 
                     // If updating all associated archetypes
                     archetypesToUpdate.forEach(archetype => {
@@ -2216,19 +2036,14 @@ const dmMachine = setup({
 
             
 
-                // 🔙 Go back case!
-                else if (
-                  (typeof context.space?.[0]?.utterance === "string" && context.space[0].utterance.toLowerCase() === "help") || 
-                  topIntent.category === "Help"
-                ) {
-                  // Handle the "Help" case
-                  console.log("🔙 Going back: Help was requested.");
+                // 🔙 go back case!
+                else if (context.space?.[0]?.utterance?.toLowerCase() === "help") {
 
 
                   // N.B. If the user goes back at this step, it will lose the acquired poitns got also from the selection of the character
                   resetArchetypeScores();  // Call the reset function to reset all scores
-                  console.log(`🔮 Previous ${highestIntent.category} Archetype Score: ${archetypeScores[`${highestIntent.category}ArchetypeScore`]}`);
-                  console.log(`🔮 Updated ${highestIntent.category} Archetype Score: ${archetypeScores[`${highestIntent.category}ArchetypeScore`]}`);
+                  console.log(`🔮 Previous ${topIntent.category} Archetype Score: ${archetypeScores[`${topIntent.category}ArchetypeScore`]}`);
+                  console.log(`🔮 Updated ${topIntent.category} Archetype Score: ${archetypeScores[`${topIntent.category}ArchetypeScore`]}`);
                   
                   return {
                     utterance: "Let's go back!",
@@ -2239,10 +2054,10 @@ const dmMachine = setup({
 
 
                 // 🔮 guess case
-                else if (isGuessHighestIntent) {
+                else if (isTopIntent && topIntent.confidenceScore > 0.70) {
                   return {
                     nextState: "AskForWhere",
-                    utterance: `Did you mean ${highestIntent.category}? If yes, repeat the name of the place.`,
+                    utterance: `Did you mean ${topIntent.category}? If yes, repeat the name of the place.`,
                   };
                 }
 
@@ -2270,57 +2085,41 @@ const dmMachine = setup({
 
 
               {
-                // If the user says "help" (spoken space or topIntent), move to "AskForWho"
+                // If the user says "help", move to "AskForWhen"
                 guard: ({ context }) => {
                   const spokenSpace = context.space?.[0]?.utterance;
-                  const topIntent = context.interpretation?.intents?.reduce((prev, current) => 
-                    (prev.confidenceScore > current.confidenceScore ? prev : current), {});
-                  
-                  return (
-                    (typeof spokenSpace === "string" && spokenSpace.toLowerCase() === "help") ||
-                    (topIntent?.category === "Help")
-                  );
+                  return typeof spokenSpace === "string" && spokenSpace.toLowerCase() === "help";
                 },
-                target: "AskForWho",
+                target: "AskForWhen",
               },
-              
+          
               {
-                // If the spokenSpace is in the grammar, go to "AskForWhere"
+                // If the spokenSpace is in the grammar, go to "Starting"
                 guard: ({ context }) => {
                   const spokenSpace = context.space?.[0]?.utterance;
                   return typeof spokenSpace === "string" && isInGrammar(spokenSpace);
                 },
-                target: "AskForWhere",
+                target: "Starting",
               },
-              
+
               {
-                // highestIntent approach
+                //topIntent approach
                 guard: ({ context }) => {
                   // Extract the intents array from context
-                  const intents = context.interpretation?.intents || [];
-              
+                  const intents = context.interpretation?.intents;
+                  // Find the top intent with the highest confidence score
+                  const topIntent = intents?.reduce((prev, current) => (prev.confidenceScore > current.confidenceScore ? prev : current), {});
                   // Define the valid spaces
-                  const validSpace = [
-                    "GoToHelsinki", "GoToAtlanticCity", "GoToMorocco", "GoToFlorence", 
-                    "GoToSantaMonica", "GoToParis", "GoToGothenburg", "GoToLake", 
-                    "GoToSavona", "GoToVarazze", "GoToTurin", "GoToMorbegno"
-                  ];
-              
-                  // Find the intent with the highest confidence within the valid spaces
-                  const highestIntent = intents
-                    .filter(intent => validSpace.includes(intent.category))
-                    .reduce((prev, current) => 
-                      (prev.confidenceScore > current.confidenceScore ? prev : current), null);
-              
-                  // Check if highestIntent exists and has a confidence score above 0.80
-                  const isHighestIntent = highestIntent && highestIntent.confidenceScore > 0.80;
-              
-                  return isHighestIntent; // Transition to AskForWhere if highestIntent has sufficient confidence
+                  const validSpace = ["GoToHelsinki", "GoToAtlanticCity", "GoToMorocco", "GoToFlorence", "GoToSantaMonica", "GoToParis", "GoToGothenburg", "GoToLake", "GoToSavona", "GoToVarazze", "GoToTurin", "GoToMorbegno" ];
+                  // Check if topIntent exists and has a confidence score above 0.80 and the category matches one of the valid spaces
+                  const isTopIntent = topIntent && topIntent.confidenceScore > 0.80 && validSpace.includes(topIntent.category);
+
+                  return isTopIntent; // Transition to Starting if topIntent has suffcient confidence
                 },
-                target: "AskForWhere", // Transition to AskForWhere state
+                target: "Starting", // Transition to Starting state
               },
-              
-              { target: "AskForWhen" }, // 🔄 Go back if not in grammar
+
+              { target: "AskForWhere" }, // 🔄 Go back if not in grammar
 
             ],
           },
@@ -2427,13 +2226,12 @@ const dmMachine = setup({
             () => console.log("👂 Listening for answer..."),
             { type: "spst.listen" },
 
-            assign(({ context }) => {
-              
-              return {
-                noInputCount: 0,    // Reset no-input counter
-              };
-            })
+
           ],
+
+          context: {
+            noInputCount: 0  // Re-Initialize no-input counter
+          },
 
           on: {
             LISTEN_COMPLETE: [
@@ -2659,7 +2457,7 @@ const dmMachine = setup({
 
        
 
-                // 😊 The user says exactly the answer that is stored in the grammar if it is not it goes to the topIntent case before going to the out-of-grammar case
+                // 😊 The user says exactly the time that is stored in the grammar if it is not it goes to the topIntent case before going to the out-of-grammar case
                 if (isInGrammar(spokenAnswer)) {
 
                   // 🔮 Log the previous archetype score for the top intent
@@ -3106,7 +2904,7 @@ const dmMachine = setup({
               // in-grammar approach
               {
                 guard: ({ context }) => {
-                  const spokenReply = context.time?.[0]?.utterance;
+                  const spokenReply = context.reply?.[0]?.utterance;
               
                   // Ensure spokenReply is a valid string and in grammar
                   if (typeof spokenReply === "string" && isInGrammar(spokenReply)) {
@@ -3119,7 +2917,7 @@ const dmMachine = setup({
               },
               {
                 guard: ({ context }) => {
-                  const spokenReply = context.time?.[0]?.utterance;
+                  const spokenReply = context.reply?.[0]?.utterance;
                   return typeof spokenReply === "string" && isInGrammar(spokenReply) && getReply(spokenReply) === "no";
                 },
                 target: "#DM.UserArchetype"
@@ -3305,9 +3103,8 @@ const dmMachine = setup({
  
               {
                 target: "CheckGrammarEnding",
-                guard: ({ context }) => !!context.reply,
+                guard: ({ context }) => !!context.message,
               },
-              { target: ".NoInput" },
               {
                 target: "#DM.GoodbyeEnding",
                 guard: ({ context }) => {
@@ -3315,15 +3112,16 @@ const dmMachine = setup({
                     intent => intent.category === "Stop"
                   );
                   const isStopIntent = stopIntent && stopIntent.confidenceScore > 0.80;
-                  const isStopUtterance = context.reply?.[0]?.utterance?.toLowerCase() === "stop";
+                  const isStopUtterance = context.message?.[0]?.utterance?.toLowerCase() === "stop";
               
                   return isStopUtterance || isStopIntent;
                 },
               },
               {
                 target: "CheckGrammarEnding",
-                guard: ({ context }) => !!context.message,
+                guard: ({ context }) => !!context.reply,
               },
+              { target: ".NoInput" },
             ],
           },
 
@@ -3348,14 +3146,17 @@ const dmMachine = setup({
               
                     return {
                       reply: event.value,
-                      message: event.value,
+                      message: event.value, // To check. this could create conflict
                       interpretation: event.nluValue
                     };
                   }),
                 },
 
                 ASR_NOINPUT: {
-                    actions: assign({ reply: null }),
+                  actions: assign({ 
+                    message: null, 
+                    reply: null 
+                  })
                 },
                 ASR_STOP: {
                   actions: () => console.log("⚠️ ASR STOP received - possibly prematurely."),
@@ -3412,25 +3213,30 @@ const dmMachine = setup({
         CheckGrammarEnding: {   
           entry: [
             ({ context }) => {
-              const spokenReply = context.reply?.[0]?.utterance?.toLowerCase() || "unknown"; 
-              console.log(`🔍 You just said: ${spokenReply}`);
+              const spokenMessage = context.message?.[0]?.utterance?.toLowerCase() || null; 
+              console.log(`🔍 You just said: ${spokenMessage}`);
               
               // Ensure spokenMessage is NULL when "goodbye" or "no" is spoken
-              context.spokenMessage = (spokenReply === "goodbye" || spokenReply === "no") 
+              context.spokenMessage = (spokenMessage === "goodbye" || spokenMessage === "no") 
                 ? null 
                 : context.message?.[0]?.utterance?.toLowerCase() || "no message"; // Safely assign based on conditions
               
               console.log(`✅ Assigned spokenMessage: ${context.spokenMessage}`);
               
-              const inGrammar = isInGrammar(spokenReply);
-              console.log(`✅ Is "${spokenReply}" in grammar? ${inGrammar ? "Yes" : "No"}`);
+              const inGrammar = isInGrammar(spokenMessage);
+              console.log(`✅ Is "${spokenMessage}" in grammar? ${inGrammar ? "Yes" : "No"}`);
+              
+              
+              const spokenReply = context.reply?.[0]?.utterance;
+              
             },
         
             {
               type: "spst.speak",
               params: ({ context }) => {
 
-                const spokenReply = context.reply?.[0]?.utterance?.toLowerCase() || "unknown";
+                const spokenMessage = context.message?.[0]?.utterance?.toLowerCase() || null;
+                console.log(`📩 Updated message for the next time traveler: ${spokenMessage}`);
 
                 const spokenPerson =
                   typeof context.person === "string"
@@ -3441,8 +3247,9 @@ const dmMachine = setup({
           
                 console.log(`👤 Recognized spoken person: "${spokenPerson}"`);
 
-                const spokenMessage = context.spokenMessage || null; 
-                console.log(`📩 Updated message for the next time traveler: ${spokenMessage}`);
+                const spokenReply = context.reply?.[0]?.utterance;
+
+
                 
   
                 // Extract the intents array from context
@@ -3461,8 +3268,14 @@ const dmMachine = setup({
                 // Log the details
                 console.log(`🚀 topIntent: ${topIntent ? topIntent.category : "N/A"} with confidence score: ${isTopIntent ? topIntent.confidenceScore : "N/A"}`);
 
-                // 🚀 If spokenMessage is null, assume the user wants to exit
-                if (!spokenMessage || spokenMessage === "goodbye" || spokenMessage === "no") {
+                // 🚀 If spokenMessage or spokenReply indicate an exit, transition to GoodbyeEnding
+                if (
+                  !spokenMessage || 
+                  spokenMessage === "goodbye" || 
+                  spokenMessage === "no" || 
+                  spokenReply === "goodbye" || 
+                  spokenReply === 0
+                ) {
                   return {
                     utterance: `Okay ${spokenPerson}.`,
                     nextState: "#DM.GoodbyeEnding",
@@ -3472,9 +3285,9 @@ const dmMachine = setup({
    
           
             
-                // 😊 The user says exactly the reply that is stored in the grammar
-                if (isInGrammar(spokenReply)) {
-                  const reply = getReply(spokenReply);
+                /// 😊 The user says exactly the reply that is stored in the grammar
+                if (isInGrammar(spokenReply) || isInGrammar(spokenMessage)) {
+                  const reply = getReply(spokenReply) || getReply(spokenMessage);
                   
                   if (reply === "no") {
                     return {
@@ -3484,20 +3297,21 @@ const dmMachine = setup({
                   }
                 }
 
-                                // 🚀 If spokenMessage is null, assume the user wants to exit
-                if (!spokenMessage || spokenMessage === "goodbye" || spokenMessage === "no") {
-                  return {
-                    utterance: `Okay ${spokenPerson}.`,
-                    nextState: "#DM.GoodbyeEnding",
-                  };
-                }
+                 /// 🚀 If spokenMessage or spokenReply is null, assume the user wants to exit
+                  if (!spokenMessage || !spokenReply || spokenMessage === "goodbye" || spokenMessage === "no" || spokenReply === "goodbye" || spokenReply === "no") {
+                    return {
+                      utterance: `Okay ${spokenPerson}.`,
+                      nextState: "#DM.GoodbyeEnding",
+                    };
+                  }
 
       
             
                 // 🚀 Logic when topIntent has high confidence
                 if (isTopIntent) {
                   context.reply = topIntent.category.toLowerCase();
-            
+                  context.message = topIntent.category.toLowerCase();
+
                   if (topIntent.category === "ReplyNo") {
                     return {
                       nextState: "#DM.GoodbyeEnding",
@@ -3505,9 +3319,12 @@ const dmMachine = setup({
                     };
                   }
                 }
-            
-                // 🛑 stop case!
-                if (context.reply?.[0]?.utterance?.toLowerCase() === "stop") {
+
+                // 🛑 Stop case! Now also checks context.message
+                if (
+                  context.reply?.[0]?.utterance?.toLowerCase() === "stop" || 
+                  context.message?.[0]?.utterance?.toLowerCase() === "stop"
+                ) {
                   return {
                     utterance: "Okay.",
                     nextState: "#DM.GoodbyeEnding"
@@ -3524,11 +3341,11 @@ const dmMachine = setup({
                   }
                 }
 
-                // ✅ If spokenMessage is not null, go to ConfirmationEnding
-                if (spokenMessage) {
+                // ✅ If spokenMessage or spokenReply is not null, go to ConfirmationEnding
+                if (spokenMessage || spokenReply) {
                   return {
                     nextState: "ConfirmationEnding",
-                    utterance: `Understood, ${spokenPerson}. Your message is ${spokenMessage}.`,
+                    utterance: `Understood, ${spokenPerson}. Your message is ${spokenMessage || spokenReply}.`,
                   };
                 }
             
@@ -3573,7 +3390,7 @@ const dmMachine = setup({
               // in-grammar approach
               {
                 guard: ({ context }) => {
-                  const spokenReply = context.time?.[0]?.utterance;
+                  const spokenReply = context.reply?.[0]?.utterance;
               
                   // Ensure spokenReply is a valid string and in grammar
                   if (typeof spokenReply === "string" && isInGrammar(spokenReply)) {
@@ -4035,8 +3852,8 @@ export function setupButton(element: HTMLButtonElement) {
       snapshot.context.spstRef.getSnapshot().getMeta(),
     )[0] || {}; // Default to an empty object if undefined
 
-    // Log the meta object and tszshe 'view' value
-    //console.log("Snapshot meta:", meta);
+    // Log the meta object and the 'view' value
+    console.log("Snapshot meta:", meta);
 
     // Use 'idle' as the fallback value if meta.view is undefined
     const view = meta.view === 'idle' ? "Begin your journey through the time." : meta.view || "Begin your journey through the time.";
