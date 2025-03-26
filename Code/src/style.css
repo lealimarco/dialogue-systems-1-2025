@@ -29,7 +29,8 @@ body {
   min-width: 320px;
   min-height: 100vh;
 
-  background: url('/Users/lealimarco/Desktop/2nd semester/LT2216 Dialogue Systems/labs/project/dialogue-systems-1-2025/Code/public/intro.gif') no-repeat center center fixed;
+  /* background: url('/Users/lealimarco/Desktop/2nd semester/LT2216 Dialogue Systems/labs/project/dialogue-systems-1-2025/Code/public/intro.gif') no-repeat center center fixed; */
+  background: url('/intro.gif') no-repeat center center fixed;
   background-size: cover;
 
 }
