@@ -11,11 +11,12 @@ const inspector = createBrowserInspector();
 
 const azureCredentials = {
   endpoint:
-    // "https://northeurope.api.cognitive.microsoft.com/sts/v1.0/issuetoken", OLD STUDENT ACCOUNT
-    // "https://northeurope.api.cognitive.microsoft.com/",
-    "https://northeurope.api.cognitive.microsoft.com/sts/v1.0/issuetoken",
+    "https://swedencentral.api.cognitive.microsoft.com/sts/v1.0/issuetoken",
   key: KEY,
 };
+
+    // "https://northeurope.api.cognitive.microsoft.com/sts/v1.0/issuetoken", OLD STUDENT ACCOUNT
+    //"https://northeurope.api.cognitive.microsoft.com/sts/v1.0/issuetoken",
 
 const azureLanguageCredentials = {
   
@@ -33,7 +34,7 @@ const settings: Settings = {
   azureLanguageCredentials: azureLanguageCredentials /** global activation of NLU */,
 
   azureCredentials: azureCredentials,
-  azureRegion: "northeurope",
+  azureRegion: "swedencentral",
   asrDefaultCompleteTimeout: 0,
   asrDefaultNoInputTimeout: 5000,
   locale: "en-US",
@@ -2390,7 +2391,7 @@ const dmMachine = setup({
               type: "spst.speak", 
               params: ({ context }) => {
 
-                const spokenAnswer = context.answer?.[0]?.utterance || "unknown";
+                const spokenAnswer = context.answer?.[0]?.utterance?.toLowerCase().trim() || "unknown";
                 const fullAnswer = (grammar[spokenAnswer] && grammar[spokenAnswer].answer) || spokenAnswer || "unknown";
 
 
@@ -2455,101 +2456,95 @@ const dmMachine = setup({
 
                 };
 
+
+      
+
+
+                // ✋ STOP case! End of the loop
+                const stopIntent = context.interpretation?.intents?.find(
+                  (intent) => intent.category === "Stop" && intent.confidenceScore > 0.80
+                );
+              
+                // 🔴 If "stop" intent detected, don't proceed to normal responses
+                if (spokenAnswer === "stop" || stopIntent) {
+                  return { utterance: "Ok. It's time.", nextState: "#DM.TravelAgain" };
+                }
+          
+
        
 
-                // 😊 The user says exactly the time that is stored in the grammar if it is not it goes to the topIntent case before going to the out-of-grammar case
                 if (isInGrammar(spokenAnswer)) {
-
                   // 🔮 Log the previous archetype score for the top intent
                   console.log(`🔮 Previous ${topIntent.category} Archetype Score: ${archetypeScores[`${topIntent.category}ArchetypeScore`]}`);
-
-                  // Check if the topIntent is a time intent (GoToPast, GoToPresent, GoToFuture)
+                
+                  // ✅ Check if the intent matches a valid answer
                   if (validAnswer.includes(topIntent.category)) {
-                    // Get the corresponding archetypes from the mapping
                     const archetypesToUpdate = answerToArchetypes[topIntent.category];
-
-                    // Update the archetype scores for each associated archetype
+                
+                    // 🔄 Update the archetype scores for all associated archetypes
                     archetypesToUpdate.forEach(archetype => {
                       const manualIntent = { category: archetype, confidenceScore: 1 };
-                      updateArchetypeScore(manualIntent, "Questions"); // Update score for each archetype
+                      updateArchetypeScore(manualIntent, "Questions");
                     });
-
-                    // Log the updated archetype scores
-                    const updatedScores = archetypesToUpdate.map(archetype => {
-                      return `${archetype}: ${archetypeScores[`${archetype}ArchetypeScore`]}`;
-                    }).join(", ");
-                    console.log(`🔮 Updated archetype scores for: ${updatedScores}`);
+                
+                    // 🔍 Log the updated archetype scores
+                    const updatedScores = archetypesToUpdate.map(archetype => 
+                      `${archetype}: ${archetypeScores[`${archetype}ArchetypeScore`]}`).join(", ");
+                    console.log(`🔮 Updated archetype scores: ${updatedScores}`);
                   }
-
+                
                   return {
                     utterance: `Thank you ${spokenPerson}.`,
                   };
-}
+                }
                 
-                // 🚀 Logic when topIntent has high confidence
+                // 🚀 If not in grammar, check topIntent case
                 else if (isTopIntent) {
                   context.answer = typeof topIntent.category === "string" ? topIntent.category.toLowerCase() : "unknown";
-
-                  // 🔮 Log the previous archetype scores
-                  console.log("🔮 ƒ Archetype Scores:");
-                  Object.keys(archetypeScores).forEach(key => {
-                    console.log(`${key}: ${archetypeScores[key] ?? "N/A"}`);
-                  });
-
+                
                   // 🔄 Initialize a set of archetypes to update
                   let archetypesToUpdate = new Set();
-
+                
                   // ✅ Add archetypes from the mapping (GoToPast, GoToPresent, GoToFuture)
-                  if (["Innocent", "Everyman", "Hero", "Caregiver", "Explorer", "Rebel", "Lover", "Creator", "Jester", "Sage", "Magician", "Ruler"].includes(topIntent.category)) {
+                  if (validAnswer.includes(topIntent.category)) {
                     answerToArchetypes[topIntent.category].forEach(archetype => archetypesToUpdate.add(archetype));
                   }
-
-                  // ✅ Add corresponding intents to be updated
+                
+                  // ✅ Extra archetypes
                   const extraIntents = ["Zack", "Hierophant", "Billy", "Menzi", "Voyager", "Devil", "Master", "Artist", "French", "Empress", "Kid", "Player"];
                   extraIntents.forEach(intent => archetypesToUpdate.add(intent));
-
+                
                   // 🔄 Update **all selected archetypes**
                   archetypesToUpdate.forEach(archetype => {
                     const manualIntent = { category: archetype, confidenceScore: topIntent.confidenceScore };
                     updateArchetypeScore(manualIntent, "Questions");
                   });
-
+                
                   // 🔮 Log the updated archetype scores
                   console.log("🔮 Updated Archetype Scores:");
                   Object.keys(archetypeScores).forEach(key => {
                     console.log(`${key}: ${archetypeScores[key] ?? "N/A"}`);
                   });
-
+                
                   return {
-                    nextState: "Questions", // Transition to "Questions" state in loop 
+                    nextState: "Questions", // Stay in loop
                     utterance: `Thank you ${spokenPerson}.`
                   };
                 }
-            
+                
+  
 
-                // ✋ stop case! End of the loop
-                else if (context.answer?.[0]?.utterance?.toLowerCase() === "stop") {
-
-
-                  return {
-                    utterance: "Ok. It's time.",
-                    nextState: "#DM.TravelAgain"
-                  };
-                }
-
-
-
-                // 🔮 guess case
+                
+                // 🔮 Guess case (if confidence is above 0.60 but not in grammar)
                 else if (isTopIntent && topIntent.confidenceScore > 0.60) {
                   return {
                     nextState: "Questions",
-                    utterance: `This is a typical reply of the ${topIntent.category}, isn't it? If yes, just say ${topIntent.category}`,
+                    utterance: `This is a typical reply of the ${topIntent.category}, isn't it? If yes, just say ${topIntent.category}.`,
                   };
                 }
-
+                
                 // ❌ Out-of-grammar case
                 else {
-                  
                   return {
                     utterance: "I don't know what you mean. Please repeat.",
                     nextState: "Questions",
@@ -2572,43 +2567,55 @@ const dmMachine = setup({
             SPEAK_COMPLETE: [
 
               {
-                // If the user says "stop", move to "#DM.TravelAgain"
+                // If the user says "stop" or the intent is classified as "Stop" with high confidence → Move to TravelAgain
                 guard: ({ context }) => {
-                  const spokenAnswer = context.answer?.[0]?.utterance;
-                  return typeof spokenAnswer === "string" && spokenAnswer.toLowerCase() === "stop";
+                  const spokenAnswer = context.answer?.[0]?.utterance?.toLowerCase().trim();
+                  const stopIntent = context.interpretation?.intents?.find(
+                    (intent) => intent.category === "Stop" && intent.confidenceScore > 0.80
+                  );
+          
+                  return spokenAnswer === "stop" || !!stopIntent;
                 },
                 target: "#DM.TravelAgain",
               },
           
               {
-                // If the spokenAnswer is in the grammar, go to "AskForWhen"
+                // If the spoken answer is in the grammar, move to "Questions"
                 guard: ({ context }) => {
                   const spokenAnswer = context.answer?.[0]?.utterance;
                   console.log("👋 End of questions loop.");
-
                   return typeof spokenAnswer === "string" && isInGrammar(spokenAnswer);
                 },
                 target: "Questions",
               },
-
+          
               {
-                //topIntent approach
+                // If the top intent matches a valid archetype/character name, move to "Questions"
                 guard: ({ context }) => {
-                  // Extract the intents array from context
                   const intents = context.interpretation?.intents;
-                  // Find the top intent with the highest confidence score
-                  const topIntent = intents?.reduce((prev, current) => (prev.confidenceScore > current.confidenceScore ? prev : current), {});
-                  // Define the valid answers
-                  const validAnswer = ["Innocent", "Everyman", "Hero", "Caregiver", "Explorer", "Rebel", "Lover", "Creator", "Jester", "Sage", "Magician", "Ruler", "Zack", "Hierophant", "Billy", "Menzi", "Voyager", "Devil", "Master", "Artist", "French", "Empress", "Kid", "Player"];
-                  // Check if topIntent exists and has a confidence score above 0.80 and the category matches one of the valid answers
-                  const isTopIntent = topIntent && topIntent.confidenceScore > 0.80 && validAnswer.includes(topIntent.category);
-
-                  return isTopIntent; // Transition to Questions if topIntent has suffcient confidence
+                  const topIntent = intents?.reduce(
+                    (prev, current) =>
+                      prev.confidenceScore > current.confidenceScore ? prev : current,
+                    {}
+                  );
+          
+                  const validAnswer = [
+                    "Innocent", "Everyman", "Hero", "Caregiver", "Explorer", "Rebel",
+                    "Lover", "Creator", "Jester", "Sage", "Magician", "Ruler",
+                    "Zack", "Hierophant", "Billy", "Menzi", "Voyager", "Devil",
+                    "Master", "Artist", "French", "Empress", "Kid", "Player",
+                  ];
+          
+                  return topIntent && topIntent.confidenceScore > 0.80 && validAnswer.includes(topIntent.category);
                 },
-                target: "Questions", // Transition to AskForWhen state
+                target: "Questions",
               },
-
-              { target: "Questions" }, // 🔄 Go back if not in grammar
+          
+              { 
+                // If nothing else matched, go back to "Questions"
+                target: "Questions" 
+              },
+              
             ],
           },
         },
@@ -2904,7 +2911,7 @@ const dmMachine = setup({
               // in-grammar approach
               {
                 guard: ({ context }) => {
-                  const spokenReply = context.reply?.[0]?.utterance;
+                  const spokenReply = context.time?.[0]?.utterance;
               
                   // Ensure spokenReply is a valid string and in grammar
                   if (typeof spokenReply === "string" && isInGrammar(spokenReply)) {
@@ -2917,7 +2924,7 @@ const dmMachine = setup({
               },
               {
                 guard: ({ context }) => {
-                  const spokenReply = context.reply?.[0]?.utterance;
+                  const spokenReply = context.time?.[0]?.utterance;
                   return typeof spokenReply === "string" && isInGrammar(spokenReply) && getReply(spokenReply) === "no";
                 },
                 target: "#DM.UserArchetype"
